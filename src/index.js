@@ -38,7 +38,46 @@ async function gerarLandingEKit({ nome, descricao, publico, whatsapp }) {
 }
 
 app.get('/', (req, res) => {
-  res.sendFile(process.cwd() + '/public/index.html');
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="pt-BR" class="dark">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Gerador de Landing IA</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+      <div class="max-w-md w-full bg-slate-900 border border-emerald-500/30 p-6 rounded-2xl shadow-xl space-y-6">
+        <div class="space-y-2">
+          <h1 class="text-2xl font-black text-emerald-400 flex items-center gap-2">⚡ Gerador de Landing IA</h1>
+          <p class="text-xs text-slate-400">Preencha os dados do negócio para gerar a página e o kit de marketing instantaneamente.</p>
+        </div>
+        <form action="/gerar" method="POST" class="space-y-4" onsubmit="this.querySelector('button').innerText='Gerando com IA...'; this.querySelector('button').disabled=true;">
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-bold">Nome da Marca / Produto</label>
+            <input type="text" name="nome" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" placeholder="Ex: Barbearia Califórnia">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-bold">Descrição do Serviço</label>
+            <textarea name="descricao" rows="3" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" placeholder="Ex: Corte moderno, barba com toalha quente..."></textarea>
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-bold">Público-Alvo</label>
+            <input type="text" name="publico" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" placeholder="Ex: Homens exigentes...">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-bold">WhatsApp de Contato</label>
+            <input type="text" name="whatsapp" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" placeholder="Ex: 5583986603681">
+          </div>
+          <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black p-3 rounded-lg text-sm transition cursor-pointer shadow-lg shadow-emerald-500/20">
+            Gerar Landing Page e Kit 🚀
+          </button>
+        </form>
+      </div>
+    </body>
+    </html>
+  `);
 });
 
 app.post('/gerar', async (req, res) => {
@@ -57,11 +96,11 @@ app.post('/gerar', async (req, res) => {
       </head>
       <body class="bg-slate-950 text-slate-100 min-h-screen p-6">
         <div class="max-w-3xl mx-auto space-y-6">
-          <div class="bg-slate-900 border border-emerald-500/30 p-6 rounded-2xl">
+          <div class="bg-slate-900 border border-emerald-500/30 p-6 rounded-2xl shadow-xl">
             <h1 class="text-2xl font-bold text-emerald-400 mb-2">✨ Landing Page Criada com Sucesso!</h1>
-            <p class="text-sm text-slate-400 mb-4">A página do seu negócio foi gerada pela IA.</p>
-            <div class="flex gap-4">
-              <button onclick="abrirPagina()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm transition cursor-pointer">
+            <p class="text-sm text-slate-400 mb-4">A página do seu negócio foi gerada pela inteligência artificial.</p>
+            <div class="flex gap-4 flex-wrap">
+              <button onclick="abrirPagina()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm transition cursor-pointer shadow-lg shadow-emerald-500/20">
                 🔗 Visualizar Landing Page em Nova Aba
               </button>
               <a href="/" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2 rounded-lg text-sm transition">
@@ -69,18 +108,18 @@ app.post('/gerar', async (req, res) => {
               </a>
             </div>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+          <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
             <h2 class="text-lg font-bold text-cyan-400">📦 Kit de Divulgação Automático</h2>
             <div>
-              <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-1">Mensagem para WhatsApp:</h3>
+              <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-1 font-bold">Mensagem para WhatsApp:</h3>
               <div class="bg-slate-950 p-4 rounded-lg text-sm border border-slate-800 whitespace-pre-wrap">${resultado.marketing_kit.whatsapp_pitch}</div>
             </div>
             <div>
-              <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-1">Legenda para Instagram:</h3>
+              <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-1 font-bold">Legenda para Instagram:</h3>
               <div class="bg-slate-950 p-4 rounded-lg text-sm border border-slate-800 whitespace-pre-wrap">${resultado.marketing_kit.instagram_caption}</div>
             </div>
             <div>
-              <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-1">Script para Reels/TikTok:</h3>
+              <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-1 font-bold">Script para Reels/TikTok:</h3>
               <div class="bg-slate-950 p-4 rounded-lg text-sm border border-slate-800 whitespace-pre-wrap">${resultado.marketing_kit.reels_script}</div>
             </div>
           </div>
@@ -97,8 +136,15 @@ app.post('/gerar', async (req, res) => {
       </html>
     `);
   } catch (error) {
-    console.error("❌ Erro detalhado:", error);
-    res.status(500).send(`Erro detalhado ao processar com IA: <pre style="color: #ff6b6b; margin-top: 10px;">${error.stack || error.message}</pre>`);
+    console.error("❌ Erro:", error);
+    res.status(500).send(`
+      <div style="background:#09090b;color:#f87171;padding:24px;font-family:sans-serif;height:100vh;box-sizing:border-box;">
+        <h2 style="font-size:20px;margin-bottom:8px;">❌ Erro ao processar com IA</h2>
+        <p style="color:#94a3b8;font-size:14px;margin-bottom:16px;">Verifique se a chave GEMINI_API_KEY está ativa na Vercel.</p>
+        <pre style="background:#18181b;padding:16px;border-radius:8px;overflow-x:auto;font-size:12px;">${error.message}</pre>
+        <br><a href="/" style="color:#34d399;text-decoration:none;font-weight:bold;">&larr; Voltar ao início</a>
+      </div>
+    `);
   }
 });
 
