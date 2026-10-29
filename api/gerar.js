@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      throw new Error("GEMINI_API_KEY não configurada nas variáveis de ambiente da Vercel.");
+      return res.status(500).json({ error: "GEMINI_API_KEY não configurada na Vercel." });
     }
 
     const prompt = `Crie uma landing page em HTML moderno utilizando Tailwind CSS e um kit de marketing para a marca: ${nome}.
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       }
     }`;
 
-    const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
+    const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -37,12 +37,12 @@ export default async function handler(req, res) {
     const data = await apiResponse.json();
     
     if (data.error) {
-      throw new Error(data.error.message || JSON.stringify(data.error));
+      return res.status(500).json({ error: data.error.message || "Erro na API do Google" });
     }
 
     const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!rawText) {
-      throw new Error("A IA retornou uma resposta vazia.");
+      return res.status(500).json({ error: "A IA retornou uma resposta vazia." });
     }
 
     let text = rawText.trim();
@@ -106,13 +106,6 @@ export default async function handler(req, res) {
     `);
   } catch (error) {
     console.error("❌ Erro:", error);
-    return res.status(500).send(`
-      <div style="background:#09090b;color:#f87171;padding:24px;font-family:sans-serif;height:100vh;box-sizing:border-box;">
-        <h2 style="font-size:20px;margin-bottom:8px;">❌ Erro ao processar com IA</h2>
-        <p style="color:#94a3b8;font-size:14px;margin-bottom:16px;">Detalhe do erro:</p>
-        <pre style="background:#18181b;padding:16px;border-radius:8px;overflow-x:auto;font-size:12px;">${error.message}</pre>
-        <br><a href="/" style="color:#34d399;text-decoration:none;font-weight:bold;">&larr; Voltar ao início</a>
-      </div>
-    `);
+    return res.status(500).json({ error: error.message });
   }
 }
