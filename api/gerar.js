@@ -28,12 +28,15 @@ export default async function handler(req, res) {
       contents: prompt,
     });
 
-    let text = response.text.trim();
+    const rawText = response?.text || (response?.candidates?.[0]?.content?.parts?.[0]?.text) || "";
+    let text = rawText.trim();
+    
     if (text.startsWith('```json')) {
       text = text.replace(/^```json/, '').replace(/```$/, '').trim();
     } else if (text.startsWith('```')) {
       text = text.replace(/^```/, '').replace(/```$/, '').trim();
     }
+
     const resultado = JSON.parse(text);
 
     return res.setHeader('Content-Type', 'text/html; charset=utf-8').status(200).send(`
