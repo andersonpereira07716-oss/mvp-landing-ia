@@ -1,5 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido' });
@@ -7,7 +5,11 @@ export default async function handler(req, res) {
 
   try {
     const { nome, descricao, publico, whatsapp } = req.body;
-    const ai = new GoogleGenAI({});
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY não configurada nas variáveis de ambiente da Vercel.");
+    }
 
     const prompt = `Crie uma landing page em HTML moderno utilizando Tailwind CSS e um kit de marketing para a marca: ${nome}.
     Descrição: ${descricao}
@@ -24,13 +26,26 @@ export default async function handler(req, res) {
       }
     }`;
 
-    const response = await ai.models.generateContent({
-      contents: prompt,
+    const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
     });
 
-    const rawText = response?.text || (response?.candidates?.[0]?.content?.parts?.[0]?.text) || "";
-    let text = rawText.trim();
+    const data = await apiResponse.json();
     
+    if (data.error) {
+      throw new Error(data.error.message || JSON.stringify(data.error));
+    }
+
+    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) {
+      throw new Error("A IA retornou uma resposta vazia.");
+    }
+
+    let text = rawText.trim();
     if (text.startsWith('```json')) {
       text = text.replace(/^```json/, '').replace(/```$/, '').trim();
     } else if (text.startsWith('```')) {
