@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       contents: prompt,
     });
 
@@ -92,7 +92,7 @@ export default async function handler(req, res) {
     return res.status(500).send(`
       <div style="background:#09090b;color:#f87171;padding:24px;font-family:sans-serif;height:100vh;box-sizing:border-box;">
         <h2 style="font-size:20px;margin-bottom:8px;">❌ Erro ao processar com IA</h2>
-        <p style="color:#94a3b8;font-size:14px;margin-bottom:16px;">Verifique se a chave GEMINI_API_KEY está ativa na Vercel.</p>
+        <p style="color:#94a3b8;font-size:14px;margin-bottom:16px;">Detalhe do erro:</p>
         <pre style="background:#18181b;padding:16px;border-radius:8px;overflow-x:auto;font-size:12px;">${error.message}</pre>
         <br><a href="/" style="color:#34d399;text-decoration:none;font-weight:bold;">&larr; Voltar ao início</a>
       </div>
