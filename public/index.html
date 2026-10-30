@@ -43,28 +43,36 @@
       const btn = document.getElementById('btnSubmit');
       const errorBox = document.getElementById('errorBox');
       errorBox.classList.add('hidden');
-      
+
       btn.disabled = true;
       btn.textContent = 'Gerando com IA... (Aguarde)';
-      
+
       const payload = {
-        nome: document.getElementById('nome').value,
-        descricao: document.getElementById('descricao').value,
-        publico: document.getElementById('publico').value,
-        whatsapp: document.getElementById('whatsapp').value
+        nome: document.getElementById('nome').value.trim(),
+        descricao: document.getElementById('descricao').value.trim(),
+        publico: document.getElementById('publico').value.trim(),
+        whatsapp: document.getElementById('whatsapp').value.trim()
       };
+
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 65000);
 
       try {
         const response = await fetch('/api/gerar', {
           method: 'POST',
+          signal: ctrl.signal,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const errData = await response.json();
-          throw new Error(errData.error || 'Erro desconhecido no servidor.');
+        const contentType = response.headers.get('content-type') || '';
+
+        if (!response.ok) {
+          if (contentType.includes('application/json')) {
+            const errData = await response.json();
+            throw new Error(errData.error || 'Erro desconhecido no servidor.');
+          }
+          throw new Error('O servidor demorou ou falhou (código ' + response.status + '). Tente novamente.');
         }
 
         const htmlResult = await response.text();
@@ -72,8 +80,13 @@
         document.write(htmlResult);
         document.close();
       } catch (err) {
-        errorBox.textContent = '❌ Erro: ' + err.message;
+        const msg = err.name === 'AbortError'
+          ? 'Tempo esgotado. Tente novamente.'
+          : err.message;
+        errorBox.textContent = '❌ Erro: ' + msg;
         errorBox.classList.remove('hidden');
+      } finally {
+        clearTimeout(timer);
         btn.disabled = false;
         btn.textContent = 'Gerar com IA...';
       }
